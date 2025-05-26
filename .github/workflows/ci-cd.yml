@@ -24,6 +24,11 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        lfs: true
+    
+    - name: Pull LFS files
+      run: git lfs pull
     
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
@@ -70,6 +75,11 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        lfs: true
+    
+    - name: Pull LFS files
+      run: git lfs pull
     
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
@@ -85,12 +95,12 @@ jobs:
       run: |
         gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
     
-    - name: Create dummy model files for build
+    - name: Verify LFS files are present
       run: |
-        mkdir -p models
-        echo "dummy" > models/best_advanced_model_BiLSTM_Word2Vec.h5
-        echo "dummy" > models/best_advanced_model_tokenizer.pickle
-        echo "dummy" > models/best_advanced_model_config.pickle
+        echo "Checking LFS files:"
+        ls -la models/
+        file models/best_advanced_model_BiLSTM_Word2Vec.h5
+        file models/best_advanced_model_tokenizer.pickle
     
     - name: Build Docker image
       run: |
@@ -111,6 +121,11 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        lfs: true
+    
+    - name: Pull LFS files
+      run: git lfs pull
     
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
@@ -144,12 +159,14 @@ jobs:
         SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region ${{ env.REGION }} --format 'value(status.url)')
         echo "Service deployed at: $SERVICE_URL"
         echo "SERVICE_URL=$SERVICE_URL" >> $GITHUB_ENV
+        echo "SERVICE_URL=$SERVICE_URL" >> $GITHUB_OUTPUT
     
     - name: Test deployed service
       run: |
         sleep 30  # Attendre que le service soit prêt
         curl -f $SERVICE_URL/health || exit 1
         echo "✅ Service health check passed"
+        echo "🌐 API accessible à: $SERVICE_URL"
 
   notify:
     name: Notify Deployment Status
