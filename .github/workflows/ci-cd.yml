@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  PROJECT_ID: air-paradis-sentiment
+  PROJECT_ID: air-paradis-sentiment-api
   REGION: europe-west1
   SERVICE_NAME: air-paradis-sentiment-api
   ARTIFACT_REGISTRY: air-paradis-registry
