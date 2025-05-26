@@ -1,0 +1,6 @@
+artifact_location: mlflow-artifacts:/327403163948604556
+creation_time: 1748125725822
+experiment_id: '327403163948604556'
+last_update_time: 1748125725822
+lifecycle_stage: active
+name: air_paradis_sentiment_production

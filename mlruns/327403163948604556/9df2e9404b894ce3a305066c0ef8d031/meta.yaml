@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/327403163948604556/9df2e9404b894ce3a305066c0ef8d031/artifacts
+end_time: 1748187133515
+entry_point_name: ''
+experiment_id: '327403163948604556'
+lifecycle_stage: active
+run_id: 9df2e9404b894ce3a305066c0ef8d031
+run_name: prediction_20250525_153213
+run_uuid: 9df2e9404b894ce3a305066c0ef8d031
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1748187133467
+status: 3
+tags: []
+user_id: Tonton

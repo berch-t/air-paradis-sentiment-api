@@ -1,0 +1,15 @@
+artifact_uri: file:///c:/Tonton/OpenClassrooms/Projet_6_realiser_une_analyse_de_sentiments_grace_au_deep_learning/final/notebooks/mlruns/604429275576045514/080997fe0341485abc5a61ecd245c90d/artifacts
+end_time: 1746708093140
+entry_point_name: ''
+experiment_id: '604429275576045514'
+lifecycle_stage: active
+run_id: 080997fe0341485abc5a61ecd245c90d
+run_name: MultinomialNB_TF-IDF
+run_uuid: 080997fe0341485abc5a61ecd245c90d
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746708089935
+status: 3
+tags: []
+user_id: Tonton

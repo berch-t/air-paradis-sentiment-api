@@ -1,0 +1,21 @@
+artifact_path: MultinomialNB_Bag_of_Words
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.3
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.6.1
+mlflow_version: 2.21.3
+model_size_bytes: 320616
+model_uuid: a98c6413a3c242a0ba9290c978adde6d
+prompts: null
+run_id: 4078f1e2af354e989d76644b2b8f8dfb
+utc_time_created: '2025-05-08 12:38:52.869096'

@@ -1,0 +1,21 @@
+artifact_path: LogisticRegression_Bag_of_Words
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.3
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.6.1
+mlflow_version: 2.21.3
+model_size_bytes: 80730
+model_uuid: b93dd57eb63f414da8d38c3c7d22f943
+prompts: null
+run_id: eba8d9fec431472a944618d2fe1251dc
+utc_time_created: '2025-05-08 12:38:49.114286'

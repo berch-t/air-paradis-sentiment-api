@@ -1,0 +1,15 @@
+artifact_uri: file:///c:/Tonton/OpenClassrooms/Projet_6_realiser_une_analyse_de_sentiments_grace_au_deep_learning/final/notebooks/mlruns/604429275576045514/b463e96e527945648366cb46743d5755/artifacts
+end_time: 1746708151598
+entry_point_name: ''
+experiment_id: '604429275576045514'
+lifecycle_stage: active
+run_id: b463e96e527945648366cb46743d5755
+run_name: LinearSVC_TF-IDF
+run_uuid: b463e96e527945648366cb46743d5755
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1746708093145
+status: 3
+tags: []
+user_id: Tonton
