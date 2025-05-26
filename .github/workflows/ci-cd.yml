@@ -24,11 +24,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        lfs: true
-    
-    - name: Pull LFS files
-      run: git lfs pull
+      # Modèles téléchargés depuis Google Cloud Storage
     
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
@@ -75,11 +71,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        lfs: true
-    
-    - name: Pull LFS files
-      run: git lfs pull
+      # Modèles téléchargés depuis Google Cloud Storage dans l'app
     
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
@@ -94,13 +86,6 @@ jobs:
     - name: Configure Docker for Google Cloud
       run: |
         gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
-    
-    - name: Verify LFS files are present
-      run: |
-        echo "Checking LFS files:"
-        ls -la models/
-        file models/best_advanced_model_BiLSTM_Word2Vec.h5
-        file models/best_advanced_model_tokenizer.pickle
     
     - name: Build Docker image
       run: |
@@ -121,11 +106,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        lfs: true
-    
-    - name: Pull LFS files
-      run: git lfs pull
     
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
@@ -179,7 +159,7 @@ jobs:
       if: ${{ needs.deploy.result == 'success' }}
       run: |
         echo "✅ Deployment successful!"
-        echo "API is live at: ${{ env.SERVICE_URL }}"
+        echo "🌐 API accessible à: https://air-paradis-sentiment-api-qxumenjqxq-ew.a.run.app"
     
     - name: Notify failure
       if: ${{ needs.test.result == 'failure' || needs.build.result == 'failure' || needs.deploy.result == 'failure' }}

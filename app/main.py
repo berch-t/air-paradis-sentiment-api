@@ -119,6 +119,9 @@ class ModelManager:
             # Configuration TensorFlow pour modèles avec batch_shape
             tf.keras.backend.clear_session()
             
+            # Téléchargement des modèles depuis Google Cloud Storage si nécessaire
+            await self._download_models_if_needed()
+            
             # Chargement du modèle TensorFlow avec gestion des erreurs batch_shape
             await self._load_tensorflow_model()
             
@@ -140,6 +143,32 @@ class ModelManager:
             self.is_dummy_model = True
             self.tokenizer_type = "dummy"
             logger.info("🎭 Fallback vers modèle factice complet")
+    
+    async def _download_models_if_needed(self):
+        """Télécharge les modèles depuis Google Cloud Storage si nécessaire"""
+        import urllib.request
+        import os
+        
+        bucket_url = "https://storage.googleapis.com/air-paradis-models"
+        models_to_download = [
+            ("best_advanced_model_BiLSTM_Word2Vec.h5", self.model_path),
+            ("best_advanced_model_tokenizer.pickle", self.tokenizer_path), 
+            ("best_advanced_model_config.pickle", self.config_path)
+        ]
+        
+        for filename, local_path in models_to_download:
+            if not os.path.exists(local_path) or os.path.getsize(local_path) < 1000:
+                logger.info(f"💾 Téléchargement de {filename} depuis GCS...")
+                try:
+                    url = f"{bucket_url}/{filename}"
+                    urllib.request.urlretrieve(url, local_path)
+                    size_mb = os.path.getsize(local_path) / (1024 * 1024)
+                    logger.info(f"✅ {filename} téléchargé: {size_mb:.1f}MB")
+                except Exception as e:
+                    logger.warning(f"⚠️ Échec téléchargement {filename}: {e}")
+            else:
+                size_mb = os.path.getsize(local_path) / (1024 * 1024)
+                logger.info(f"✅ {filename} déjà présent: {size_mb:.1f}MB")
     
     async def _load_tensorflow_model(self):
         """Charge le modèle TensorFlow avec gestion batch_shape"""

@@ -234,7 +234,14 @@ local/
 *.json
 !requirements*.json
 
-# Large model files - use Git LFS
-# models/*.h5
-# models/*.pickle
-# (décommentez si vous voulez tracker avec Git LFS)
+# Modèles de Machine Learning
+# Les modèles sont hébergés sur Google Cloud Storage (gs://air-paradis-models/)
+# Plus besoin de Git LFS pour éviter les limitations de budget
+models/*.h5
+models/*.hdf5
+models/*.pickle
+models/*.pkl
+
+# Git LFS (non utilisé)
+# Garde pour historique, mais modèles maintenant sur GCS
+# *.h5 filter=lfs diff=lfs merge=lfs -text

@@ -90,12 +90,16 @@ pip install -r requirements-windows.txt
 pip install -r requirements.txt
 ```
 
-### 4. Copier les modèles
+### 4. Modèles pré-entraînés
 
-Placez les fichiers de modèles dans le dossier `models/` :
-- `best_advanced_model_BiLSTM_Word2Vec.h5`
-- `best_advanced_model_tokenizer.pickle`
-- `best_advanced_model_config.pickle`
+Les modèles sont automatiquement téléchargés depuis **Google Cloud Storage** au démarrage de l'API :
+- `best_advanced_model_BiLSTM_Word2Vec.h5` (338.9 MB)
+- `best_advanced_model_tokenizer.pickle` (12.9 MB)
+- `best_advanced_model_config.pickle` (142 B)
+
+**Bucket GCS :** `gs://air-paradis-models/`
+
+*Note : Les modèles sont hébergés sur Google Cloud Storage pour éviter les limitations de GitHub LFS.*
 
 ### 5. Démarrer MLflow (dans un terminal séparé)
 
@@ -129,11 +133,16 @@ L'API sera accessible à : http://localhost:8000
    gcloud services enable logging.googleapis.com
    ```
 
-3. **Créer un Artifact Registry** :
+3. **Créer un bucket Google Cloud Storage** :
    ```bash
-   gcloud artifacts repositories create air-paradis-registry \
-     --repository-format=docker \
-     --location=europe-west1
+   gsutil mb -c STANDARD -l europe-west1 gs://air-paradis-models
+   gsutil iam ch allUsers:objectViewer gs://air-paradis-models
+   ```
+
+4. **Uploader les modèles** :
+   ```bash
+   gsutil cp models/*.h5 gs://air-paradis-models/
+   gsutil cp models/*.pickle gs://air-paradis-models/
    ```
 
 ### Étape 2 : Configuration des secrets GitHub
