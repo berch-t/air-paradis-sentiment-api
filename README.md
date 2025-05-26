@@ -82,6 +82,10 @@ venv\Scripts\activate     # Windows
 ### 3. Installer les dépendances
 
 ```bash
+# Pour le développement local Windows
+pip install -r requirements-windows.txt
+
+# Pour déploiement Linux/Docker
 pip install -r requirements.txt
 ```
 

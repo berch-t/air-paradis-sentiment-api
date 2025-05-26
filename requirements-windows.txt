@@ -1,3 +1,4 @@
+# Requirements pour développement local Windows (avec pywin32)
 absl-py==2.2.2
 alembic==1.16.1
 anyio==4.9.0
@@ -93,6 +94,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.0.0
 python-multipart==0.0.6
 pytz==2023.4
+pywin32==310
 PyYAML==6.0.2
 querystring-parser==1.2.4
 regex==2024.11.6
@@ -111,6 +113,7 @@ starlette==0.27.0
 tabulate==0.9.0
 tensorboard==2.16.2
 tensorboard-data-server==0.7.2
+# TensorFlow (version unifiée pour compatibilité cross-platform)
 tensorflow==2.16.1
 termcolor==3.1.0
 threadpoolctl==3.6.0

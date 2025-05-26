@@ -20,10 +20,10 @@ RUN apt-get update && apt-get install -y \
 # Copier les fichiers de requirements
 COPY requirements.txt .
 
-# Installation des dépendances Python avec versions spécifiques pour TensorFlow 2.13
+# Installation des dépendances Python avec versions spécifiques pour compatibility
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir typing-extensions==4.5.0 && \
-    pip install --no-cache-dir tensorflow==2.13.0 && \
+    pip install --no-cache-dir typing-extensions==4.13.2 && \
+    pip install --no-cache-dir tensorflow==2.16.1 && \
     pip install --no-cache-dir -r requirements.txt
 
 # Télécharger les données NLTK nécessaires
