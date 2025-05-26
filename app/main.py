@@ -104,7 +104,7 @@ class ModelManager:
         self.tokenizer_path = "models/best_advanced_model_tokenizer.pickle"
         self.config_path = "models/best_advanced_model_config.pickle"
         self.is_dummy_model = False
-        self.tokenizer_type = "unknown"
+        self.tokenizer_type = "dummy"  # Valeur par défaut pour éviter les erreurs
         
     async def load_model(self):
         """Charge le modèle et ses composants avec gestion des incompatibilités TF 2.13"""
@@ -436,9 +436,9 @@ class SentimentRequest(BaseModel):
     
     @validator('text')
     def validate_text(cls, v):
-        if not v.strip():
+        if not v or not v.strip():
             raise ValueError('Le texte ne peut pas être vide')
-        return v
+        return v.strip()
 
 class SentimentResponse(BaseModel):
     text: str
