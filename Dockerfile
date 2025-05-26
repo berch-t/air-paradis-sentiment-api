@@ -10,6 +10,8 @@ ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TF_CPP_MIN_LOG_LEVEL=2
 ENV TF_ENABLE_ONEDNN_OPTS=0
+ENV MPLCONFIGDIR=/tmp/matplotlib
+ENV ENVIRONMENT=production
 
 # Installation des dépendances système
 RUN apt-get update && apt-get install -y \
@@ -34,6 +36,9 @@ COPY app/ ./app/
 COPY config/ ./config/
 COPY models/ ./models/
 COPY monitoring/ ./monitoring/
+
+# Créer les répertoires nécessaires
+RUN mkdir -p /tmp/matplotlib && chmod 777 /tmp/matplotlib
 
 # Créer un utilisateur non-root pour la sécurité
 RUN groupadd -r appuser && useradd -r -g appuser appuser
