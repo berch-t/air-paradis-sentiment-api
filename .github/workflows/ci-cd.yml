@@ -43,14 +43,22 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest pytest-asyncio httpx
+        pip install pytest pytest-asyncio httpx coverage
     
-    - name: Create dummy model files for tests
+    - name: Configure pytest
+      run: |
+        echo "[tool.pytest.ini_options]" > pytest.ini
+        echo "asyncio_mode = 'auto'" >> pytest.ini
+        echo "testpaths = ['tests']" >> pytest.ini
+    
+    - name: Create dummy model files for tests only
       run: |
         mkdir -p models
-        touch models/best_advanced_model_BiLSTM_Word2Vec.h5
-        touch models/best_advanced_model_tokenizer.pickle
-        touch models/best_advanced_model_config.pickle
+        # Créer des fichiers factices UNIQUEMENT pour les tests
+        # En production, les vrais modèles seront téléchargés depuis GCS
+        echo "dummy_for_tests" > models/best_advanced_model_BiLSTM_Word2Vec.h5
+        echo "dummy_for_tests" > models/best_advanced_model_tokenizer.pickle
+        echo "dummy_for_tests" > models/best_advanced_model_config.pickle
     
     - name: Run unit tests
       run: |
@@ -89,6 +97,12 @@ jobs:
     
     - name: Build Docker image
       run: |
+        # Supprimer les fichiers factices avant le build Docker
+        rm -f models/best_advanced_model_BiLSTM_Word2Vec.h5
+        rm -f models/best_advanced_model_tokenizer.pickle
+        rm -f models/best_advanced_model_config.pickle
+        
+        # Build avec les vrais modèles téléchargés depuis GCS au runtime
         docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
         docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY }}/${{ env.SERVICE_NAME }}:latest .
     
@@ -124,8 +138,8 @@ jobs:
           --platform managed \
           --region ${{ env.REGION }} \
           --allow-unauthenticated \
-          --memory 2Gi \
-          --cpu 1 \
+          --memory 4Gi \
+          --cpu 2 \
           --timeout 600 \
           --max-instances 10 \
           --set-env-vars "GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }}" \

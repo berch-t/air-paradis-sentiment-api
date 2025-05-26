@@ -157,7 +157,21 @@ class ModelManager:
         ]
         
         for filename, local_path in models_to_download:
-            if not os.path.exists(local_path) or os.path.getsize(local_path) < 1000:
+            # Vérifier si le fichier existe ET s'il est de taille réaliste
+            file_exists = os.path.exists(local_path)
+            file_size = os.path.getsize(local_path) if file_exists else 0
+            
+            # Télécharger si :
+            # - Le fichier n'existe pas
+            # - Le fichier est trop petit (< 1MB = probablement factice)
+            # - Le fichier contient "dummy" (fichiers de test)
+            should_download = (
+                not file_exists or 
+                file_size < 1_000_000 or  # < 1MB
+                (file_exists and self._is_dummy_file(local_path))
+            )
+            
+            if should_download:
                 logger.info(f"💾 Téléchargement de {filename} depuis GCS...")
                 try:
                     url = f"{bucket_url}/{filename}"
@@ -169,6 +183,15 @@ class ModelManager:
             else:
                 size_mb = os.path.getsize(local_path) / (1024 * 1024)
                 logger.info(f"✅ {filename} déjà présent: {size_mb:.1f}MB")
+    
+    def _is_dummy_file(self, file_path):
+        """Vérifie si un fichier est factice (contient 'dummy')"""
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read(100)  # Lire seulement les 100 premiers caractères
+                return 'dummy' in content.lower()
+        except:
+            return False
     
     async def _load_tensorflow_model(self):
         """Charge le modèle TensorFlow avec gestion batch_shape"""

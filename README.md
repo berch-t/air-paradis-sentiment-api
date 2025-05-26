@@ -221,7 +221,7 @@ L'API utilise **Google Cloud Logging** et **Google Cloud Monitoring** pour :
    - Feedback de qualité
 
 3. **Alertes automatiques** :
-   - Email envoyé à `berchet.thomas@gmail.com`
+   - Email envoyé à `example@email.com` (Admin)
    - Déclenchement : 3 erreurs en 5 minutes
 
 ### Configuration des alertes

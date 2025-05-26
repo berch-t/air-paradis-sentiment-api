@@ -45,7 +45,7 @@ class TestAPI:
             "confidence": 0.8542,
             "probability": 0.8542,
             "model": "BiLSTM_Word2Vec",
-            "tokenizer_type": "dummy",  # Champ manquant ajouté
+            "tokenizer_type": "dummy", 
             "timestamp": "2024-01-01T12:00:00"
         }
         
@@ -141,6 +141,7 @@ class TestModelManager:
         assert model_manager_mock.tokenizer is not None
         assert model_manager_mock.config["max_sequence_length"] == 50
     
+    @pytest.mark.asyncio
     @patch('tensorflow.keras.models.load_model')
     @patch('pickle.load')
     @patch('builtins.open')
@@ -156,12 +157,12 @@ class TestModelManager:
         from app.main import ModelManager
         manager = ModelManager()
         
-        # Le test réel nécessiterait des fichiers existants
         # Ici on teste la logique sans les fichiers
         assert manager.model_path == "models/best_advanced_model_BiLSTM_Word2Vec.h5"
         assert manager.tokenizer_path == "models/best_advanced_model_tokenizer.pickle"
         assert manager.config_path == "models/best_advanced_model_config.pickle"
     
+    @pytest.mark.asyncio
     @patch('tensorflow.keras.preprocessing.sequence.pad_sequences')
     async def test_predict_text_processing(self, mock_pad_sequences):
         """Test du preprocessing de texte pour la prédiction"""
@@ -257,29 +258,65 @@ class TestIntegration:
         # Test que les erreurs sont bien envoyées au monitoring
         pass
 
-# Tests de performance
 class TestPerformance:
     """Tests de performance"""
     
-    def test_prediction_response_time(self):
+    @patch('app.main.model_manager.predict')
+    def test_prediction_response_time(self, mock_predict):
         """Test du temps de réponse des prédictions"""
         import time
         
+        # Mock rapide pour tester la performance de l'API
+        mock_predict.return_value = {
+            "text": "Test text",
+            "sentiment": "positive",
+            "confidence": 0.85,
+            "probability": 0.85,
+            "model": "BiLSTM_Word2Vec",
+            "tokenizer_type": "dummy",
+            "timestamp": "2024-01-01T12:00:00"
+        }
+        
         start_time = time.time()
+        response = client.post("/predict", json={"text": "Test text for performance"})
+        end_time = time.time()
         
-        # Ici on testerait avec un modèle réel
-        # response = client.post("/predict", json={"text": "Test text"})
+        response_time = end_time - start_time
         
-        # end_time = time.time()
-        # response_time = end_time - start_time
-        
-        # assert response_time < 2.0  # Moins de 2 secondes
-        pass
+        assert response.status_code == 200
+        assert response_time < 1.0  # Moins d'1 seconde pour l'API mockée
     
-    def test_concurrent_predictions(self):
+    @patch('app.main.model_manager.predict')
+    def test_concurrent_predictions(self, mock_predict):
         """Test de prédictions concurrentes"""
-        # Test de charge avec plusieurs requêtes simultanées
-        pass
+        import concurrent.futures
+        import time
+        
+        # Mock pour tests concurrents
+        mock_predict.return_value = {
+            "text": "Test text",
+            "sentiment": "positive", 
+            "confidence": 0.85,
+            "probability": 0.85,
+            "model": "BiLSTM_Word2Vec",
+            "tokenizer_type": "dummy",
+            "timestamp": "2024-01-01T12:00:00"
+        }
+        
+        def make_prediction(text):
+            return client.post("/predict", json={"text": f"Test {text}"})
+        
+        # Test avec 5 requêtes concurrentes
+        start_time = time.time()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            futures = [executor.submit(make_prediction, i) for i in range(5)]
+            results = [future.result() for future in concurrent.futures.as_completed(futures)]
+        end_time = time.time()
+        
+        # Vérifications
+        assert len(results) == 5
+        assert all(r.status_code == 200 for r in results)
+        assert end_time - start_time < 5.0  # Moins de 5 secondes pour 5 requêtes
 
 if __name__ == "__main__":
     pytest.main([__file__])
