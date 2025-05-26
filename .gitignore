@@ -206,6 +206,9 @@ yarn-error.log*
 *.rar
 *.7z
 
+# Makefiles
+Makefile
+
 # Notebooks: raw data files
 notebooks/data/training.1600000.processed.noemoticon.csv
 notebooks/data/processed_tweets.csv

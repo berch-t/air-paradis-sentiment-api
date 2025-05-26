@@ -2,6 +2,8 @@
 
 🚀 **API FastAPI d'analyse de sentiment pour les tweets - Modèle BiLSTM avec Word2Vec**
 
+✅ **Artifact Registry configuré avec succès !** - Test de déploiement automatique en cours...
+
 Cette API constitue le livrable principal du **Projet 7 : "Réaliser une analyse de sentiments grâce au Deep Learning"** dans le cadre du parcours **Ingénieur IA** d'OpenClassrooms. Le projet simule une mission de conseil pour la compagnie aérienne fictive "Air Paradis" visant à développer un système d'analyse de sentiment des tweets pour anticiper les bad buzz sur les réseaux sociaux.
 
 **Objectifs pédagogiques :**
