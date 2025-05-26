@@ -69,7 +69,8 @@ class TestAPI:
         
         # FastAPI retourne 422 pour les erreurs de validation Pydantic
         assert response.status_code == 422
-        assert "field required" in str(response.json()) or "ne peut pas être vide" in str(response.json())
+        # Le message d'erreur contient "min_length" pour les chaînes vides
+        assert "min_length" in str(response.json()) or "ensure this value has at least 1 characters" in str(response.json())
     
     def test_predict_endpoint_invalid_json(self):
         """Test avec JSON invalide"""
