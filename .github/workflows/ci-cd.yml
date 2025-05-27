@@ -3,8 +3,18 @@ name: CI/CD Pipeline - Air Paradis Sentiment API
 on:
   push:
     branches: [ main, develop ]
+    paths:
+      - 'app/**'
+      - 'config/**'
+      - 'monitoring/**'
+      - 'tests/**'
+      - 'requirements.txt'
+      - 'Dockerfile'
+      - '.github/workflows/ci-cd.yml'
+      - '*.py'
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 env:
   PROJECT_ID: air-paradis-sentiment-api
