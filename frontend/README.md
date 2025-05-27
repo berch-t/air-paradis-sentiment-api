@@ -1,6 +1,6 @@
 # Air Paradis Sentiment Analysis UI
 
-🎨 **Interface utilisateur Next.js ultra-moderne pour l'analyse de sentiment des tweets**
+🎨 **Interface utilisateur Next.js moderne pour l'analyse de sentiment des tweets**
 
 Cette interface constitue le frontend du **Projet 7 : "Réaliser une analyse de sentiments grâce au Deep Learning"** dans le cadre du parcours **Ingénieur IA** d'OpenClassrooms.
 

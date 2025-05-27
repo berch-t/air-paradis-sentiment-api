@@ -22,8 +22,8 @@ export default function AnimatedHeader() {
           <motion.img
             src="/logo.png"
             alt="Air Paradis Sentiment AI"
-            width={120}
-            height={120}
+            width={130}
+            height={130}
             animate={{ 
               y: [0, -10, 0],
               rotate: [0, 2, -2, 0]
@@ -45,7 +45,7 @@ export default function AnimatedHeader() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.4 }}
-        className="text-6xl md:text-7xl font-bold mb-4 bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent animate-glow"
+        className="text-6xl md:text-7xl font-bold mb-4 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent animate-glow"
       >
         Air Paradis
       </motion.h1>
