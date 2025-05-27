@@ -32,6 +32,22 @@ google_air-paradis-api/
 ├── config/
 │   ├── __init__.py
 │   └── settings.py             # Configuration de l'application
+├── frontend/                   # 🎨 Interface Next.js ultra-moderne
+│   ├── app/
+│   │   ├── page.tsx           # Page principale
+│   │   ├── layout.tsx         # Layout global
+│   │   ├── globals.css        # Styles avec animations
+│   │   └── api/logging/       # API route pour Google Cloud Logging
+│   ├── components/
+│   │   ├── AnimatedHeader.tsx # En-tête avec logo animé
+│   │   ├── SentimentForm.tsx  # Formulaire d'analyse
+│   │   ├── SentimentResult.tsx # Affichage des résultats
+│   │   └── ui/               # Composants UI réutilisables
+│   ├── lib/
+│   │   ├── api.ts            # Fonctions d'API et monitoring
+│   │   └── utils.ts          # Utilitaires
+│   ├── Dockerfile            # Image Docker pour le frontend
+│   └── README.md             # Documentation frontend
 ├── models/
 │   ├── best_advanced_model_BiLSTM_Word2Vec.h5    # Modèle TensorFlow
 │   ├── best_advanced_model_tokenizer.pickle      # Tokenizer
@@ -43,9 +59,10 @@ google_air-paradis-api/
 │   ├── __init__.py
 │   └── test_api.py             # Tests unitaires
 ├── .github/workflows/
-│   └── ci-cd.yml               # Pipeline GitHub Actions
+│   ├── ci-cd.yml               # Pipeline API
+│   └── deploy-frontend.yml    # Pipeline Frontend
 ├── requirements.txt            # Dépendances Python
-├── Dockerfile                  # Image Docker
+├── Dockerfile                  # Image Docker API
 ├── .dockerignore              # Exclusions Docker
 └── README.md                  # Cette documentation
 ```
@@ -380,7 +397,53 @@ curl -X POST "https://your-api-url/feedback" \
 
 ### Interface interactive
 
-Documentation Swagger disponible à : `https://your-api-url/docs`
+- **Documentation Swagger** : `https://your-api-url/docs`
+- **Interface utilisateur moderne** : Voir le dossier `frontend/` pour l'interface Next.js
+
+## 🎨 Interface Utilisateur (Frontend)
+
+Une interface Next.js ultra-moderne est disponible dans le dossier `frontend/` :
+
+### Fonctionnalités de l'UI
+- **Design dark** avec animations fluides
+- **Analyse de sentiment en temps réel**
+- **Système de feedback** avec monitoring Google Cloud
+- **Particules animées** et effets glassmorphism
+- **Statistiques en temps réel**
+
+### Démarrage rapide de l'interface
+
+```bash
+# Naviguer vers le frontend
+cd frontend
+
+# Installer les dépendances
+npm install
+
+# Configurer l'environnement
+cp .env.example .env.local
+# Modifier NEXT_PUBLIC_API_URL dans .env.local
+
+# Démarrer en développement
+npm run dev
+# Interface accessible sur http://localhost:3000
+```
+
+### Déploiement du Frontend
+
+L'interface peut être déployée automatiquement sur Google Cloud Run :
+
+```bash
+# Commit du frontend
+git add frontend/
+git commit -m "Add frontend"
+git push origin main
+
+# Le pipeline GitHub Actions se déclenche automatiquement
+# pour les modifications dans frontend/
+```
+
+Pour plus de détails, consultez `frontend/README.md`.
 
 ## 📝 Notes importantes
 

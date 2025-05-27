@@ -1,0 +1,59 @@
+name: Deploy Frontend to Cloud Run
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'frontend/**' ]
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: air-paradis-sentiment
+  REGION: europe-west1
+  SERVICE_NAME: air-paradis-frontend
+  
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+        
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      
+    - name: Configure Docker to use gcloud as credential helper
+      run: gcloud auth configure-docker europe-west1-docker.pkg.dev
+      
+    - name: Build and push Docker image
+      working-directory: ./frontend
+      run: |
+        # Build image
+        docker build -t europe-west1-docker.pkg.dev/$PROJECT_ID/air-paradis-repo/$SERVICE_NAME:$GITHUB_SHA .
+        
+        # Push image
+        docker push europe-west1-docker.pkg.dev/$PROJECT_ID/air-paradis-repo/$SERVICE_NAME:$GITHUB_SHA
+        
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy $SERVICE_NAME \
+          --image europe-west1-docker.pkg.dev/$PROJECT_ID/air-paradis-repo/$SERVICE_NAME:$GITHUB_SHA \
+          --region $REGION \
+          --platform managed \
+          --allow-unauthenticated \
+          --memory 1Gi \
+          --cpu 1 \
+          --max-instances 10 \
+          --set-env-vars NEXT_PUBLIC_API_URL=https://air-paradis-sentiment-api-qxumenjqxq-ew.a.run.app \
+          --set-env-vars NEXT_PUBLIC_GOOGLE_CLOUD_PROJECT=$PROJECT_ID \
+          --set-env-vars NEXT_PUBLIC_MONITORING_ENABLED=true
+          
+    - name: Show deployment URL
+      run: |
+        echo "🚀 Frontend deployed successfully!"
+        gcloud run services describe $SERVICE_NAME --region $REGION --format 'value(status.url)'
