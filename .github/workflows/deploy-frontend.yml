@@ -31,10 +31,9 @@ jobs:
       run: gcloud auth configure-docker europe-west1-docker.pkg.dev
       
     - name: Build and push Docker image
-      working-directory: ./frontend
       run: |
-        # Build image sans cache pour forcer le rebuild complet
-        docker build --no-cache -t europe-west1-docker.pkg.dev/$PROJECT_ID/air-paradis-repo/$SERVICE_NAME:$GITHUB_SHA .
+        # Build image depuis la racine avec le nouveau Dockerfile
+        docker build --no-cache -f Dockerfile.frontend -t europe-west1-docker.pkg.dev/$PROJECT_ID/air-paradis-repo/$SERVICE_NAME:$GITHUB_SHA .
         
         # Push image
         docker push europe-west1-docker.pkg.dev/$PROJECT_ID/air-paradis-repo/$SERVICE_NAME:$GITHUB_SHA
