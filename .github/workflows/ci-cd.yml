@@ -34,7 +34,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      # Modèles téléchargés depuis Google Cloud Storage
+
+      # Modèles téléchargés depuis Google Cloud Storage.
     
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
