@@ -33,8 +33,8 @@ jobs:
     - name: Build and push Docker image
       working-directory: ./frontend
       run: |
-        # Build image
-        docker build -t europe-west1-docker.pkg.dev/$PROJECT_ID/air-paradis-repo/$SERVICE_NAME:$GITHUB_SHA .
+        # Build image sans cache pour forcer le rebuild complet
+        docker build --no-cache -t europe-west1-docker.pkg.dev/$PROJECT_ID/air-paradis-repo/$SERVICE_NAME:$GITHUB_SHA .
         
         # Push image
         docker push europe-west1-docker.pkg.dev/$PROJECT_ID/air-paradis-repo/$SERVICE_NAME:$GITHUB_SHA
