@@ -11,17 +11,17 @@ Cette API constitue le livrable principal du **Projet 7 : "Réaliser une analyse
 - Implémenter une démarche MLOps complète (expérimentation, déploiement, monitoring)
 - Déployer un modèle en production sur le Cloud avec pipeline CI/CD
 
-## 📋 Table des matières
+## Table des matières 📋
 
-- [Architecture](#architecture)
-- [Prérequis](#prérequis)
-- [Installation locale](#installation-locale)
-- [Déploiement sur Google Cloud](#déploiement-sur-google-cloud)
-- [Configuration MLflow](#configuration-mlflow)
-- [Monitoring et alertes](#monitoring-et-alertes)
-- [Tests](#tests)
-- [API Endpoints](#api-endpoints)
-- [Pipeline CI/CD](#pipeline-cicd)
+- [Architecture](#🏗️-architecture)
+- [Prérequis](#📦-prérequis)
+- [Installation locale](#🔧-installation-locale)
+- [Déploiement sur Google Cloud](#☁️-déploiement-sur-google-cloud)
+- [Configuration MLflow](#📊-configuration-mlflow)
+- [Monitoring et alertes](#📈-monitoring-et-alertes)
+- [Tests](#🧪-tests)
+- [API Endpoints](#🔌-api-endpoints)
+- [Pipeline CI/CD](#🔄-pipeline-cicd)
 
 ## 🏗️ Architecture
 
@@ -32,7 +32,7 @@ google_air-paradis-api/
 ├── config/
 │   ├── __init__.py
 │   └── settings.py             # Configuration de l'application
-├── frontend/                   # 🎨 Interface Next.js ultra-moderne
+├── frontend/                   # Interface Next.js
 │   ├── app/
 │   │   ├── page.tsx           # Page principale
 │   │   ├── layout.tsx         # Layout global
@@ -79,13 +79,13 @@ google_air-paradis-api/
 - **MLflow** pour le tracking des expérimentations
 - **Modèles pré-entraînés** du notebook `3_modele_avance.py`
 
-## 🔧 Installation locale
+## Installation locale 🔧
 
 ### 1. Cloner le repository
 
 ```bash
-git clone <repository-url>
-cd google_air-paradis-api
+git clone https://github.com/berch-t/air-paradis-sentiment-api
+cd air-paradis-sentiment-api
 ```
 
 ### 2. Créer un environnement virtuel
@@ -177,7 +177,7 @@ Dans votre repository GitHub, aller dans **Settings > Secrets and variables > Ac
 1. **Push vers la branche main** :
    ```bash
    git add .
-   git commit -m "Deploy Air Paradis Sentiment API"
+   git commit -m "First Commit: Deploy Air Paradis Sentiment API"
    git push origin main
    ```
 
@@ -238,7 +238,7 @@ L'API utilise **Google Cloud Logging** et **Google Cloud Monitoring** pour :
    - Feedback de qualité
 
 3. **Alertes automatiques** :
-   - Email envoyé à `example@email.com` (Admin)
+   - Email envoyé à `votre-email@example.com` (Admin)
    - Déclenchement : 3 erreurs en 5 minutes
 
 ### Configuration des alertes
@@ -402,14 +402,14 @@ curl -X POST "https://your-api-url/feedback" \
 
 ## 🎨 Interface Utilisateur (Frontend)
 
-Une interface Next.js ultra-moderne est disponible dans le dossier `frontend/` :
+Une interface Next.js moderne est disponible dans le dossier `frontend/` :
 
 ### Fonctionnalités de l'UI
-- **Design dark** avec animations fluides
 - **Analyse de sentiment en temps réel**
 - **Système de feedback** avec monitoring Google Cloud
-- **Particules animées** et effets glassmorphism
 - **Statistiques en temps réel**
+- **Design dark** avec animations fluides
+- **Particules animées** et effets glassmorphism
 
 ### Démarrage rapide de l'interface
 
@@ -479,7 +479,7 @@ uvicorn app.main:app --log-level debug
 gcloud logs read "resource.type=cloud_run_revision" --limit=50
 ```
 
-## 👥 Contribution
+## Contribution 👥
 
 Pour contribuer au projet :
 

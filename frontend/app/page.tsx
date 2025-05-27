@@ -184,7 +184,7 @@ export default function HomePage() {
             {/* Copyright */}
             <div className="text-xs text-gray-500 space-y-1">
               <p>
-                © 2024 Thomas Berchet. Licensed under the{' '}
+                © 2025 Thomas Berchet. Licensed under the{' '}
                 <a 
                   href="https://opensource.org/licenses/MIT" 
                   className="text-blue-400 hover:text-blue-300 underline" 
@@ -200,7 +200,7 @@ export default function HomePage() {
                   href="mailto:berchet.thomas@gmail.com" 
                   className="text-blue-400 hover:text-blue-300 underline"
                 >
-                  Contact the author
+                  Contacter l'auteur
                 </a>
               </p>
             </div>
