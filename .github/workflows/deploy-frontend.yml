@@ -12,7 +12,7 @@ on:
 env:
   PROJECT_ID: air-paradis-sentiment
   REGION: europe-west1
-  SERVICE_NAME: air-paradis-repo
+  SERVICE_NAME: air-paradis-frontend
   
 jobs:
   deploy:
