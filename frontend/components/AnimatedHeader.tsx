@@ -79,7 +79,7 @@ export default function AnimatedHeader() {
       >
         <div className="flex items-center space-x-2">
           <Zap className="w-4 h-4 text-yellow-400" />
-          <span>87% Accuracy</span>
+          <span>80% Accuracy</span>
         </div>
         <div className="flex items-center space-x-2">
           <Bot className="w-4 h-4 text-purple-400" />
