@@ -13,6 +13,7 @@ env:
   PROJECT_ID: air-paradis-sentiment
   REGION: europe-west1
   SERVICE_NAME: air-paradis-frontend
+  ARTIFACT_REGISTRY: air-paradis-registry
   
 jobs:
   deploy:
@@ -45,15 +46,15 @@ jobs:
     - name: Build and push Docker image
       run: |
         # Build image depuis la racine avec le nouveau Dockerfile
-        docker build --no-cache -f Dockerfile.frontend -t europe-west1-docker.pkg.dev/$PROJECT_ID/air-paradis-repo/$SERVICE_NAME:$GITHUB_SHA .
+        docker build --no-cache -f Dockerfile.frontend -t europe-west1-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/$SERVICE_NAME:$GITHUB_SHA .
         
         # Push image
-        docker push europe-west1-docker.pkg.dev/$PROJECT_ID/air-paradis-repo/$SERVICE_NAME:$GITHUB_SHA
+        docker push europe-west1-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/$SERVICE_NAME:$GITHUB_SHA
         
     - name: Deploy to Cloud Run
       run: |
         gcloud run deploy $SERVICE_NAME \
-          --image europe-west1-docker.pkg.dev/$PROJECT_ID/air-paradis-repo/$SERVICE_NAME:$GITHUB_SHA \
+          --image europe-west1-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/$SERVICE_NAME:$GITHUB_SHA \
           --region $REGION \
           --platform managed \
           --allow-unauthenticated \
