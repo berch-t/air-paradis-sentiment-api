@@ -6,8 +6,7 @@ const nextConfig = {
   images: {
     domains: ['images.unsplash.com'],
   },
-  // Optimisation pour Cloud Run
-  output: 'standalone',
+  // Pas de output standalone pour simplicité
   
   async headers() {
     return [
