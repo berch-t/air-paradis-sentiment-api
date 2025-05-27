@@ -406,3 +406,5 @@ Pour toute question ou problème :
 - **GitHub Issues** : Rapportez les bugs
 - **Documentation** : Consultez ce README
 - **API Status** : Vérifiez le statut en temps réel dans l'interface
+ 
+"<!-- Debug trigger: 27/05/2025 14:28:26,51 -->" 

@@ -33,6 +33,15 @@ jobs:
     - name: Configure Docker to use gcloud as credential helper
       run: gcloud auth configure-docker europe-west1-docker.pkg.dev
       
+    - name: Debug - List frontend contents
+      run: |
+        echo "=== CONTENU FRONTEND ==="
+        ls -la frontend/
+        echo "=== CONTENU COMPONENTS ==="
+        ls -la frontend/components/ || echo "COMPONENTS MANQUANT!"
+        echo "=== CONTENU COMPONENTS/UI ==="
+        ls -la frontend/components/ui/ || echo "COMPONENTS/UI MANQUANT!"
+        
     - name: Build and push Docker image
       run: |
         # Build image depuis la racine avec le nouveau Dockerfile

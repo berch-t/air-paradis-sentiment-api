@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { RefreshCw, Wifi, WifiOff, Activity } from 'lucide-react'
-import BackgroundParticles from '@/components/BackgroundParticles'
-import AnimatedHeader from '@/components/AnimatedHeader'
-import SentimentForm from '@/components/SentimentForm'
-import SentimentResult from '@/components/SentimentResult'
-import { Button } from '@/components/ui/button'
-import { type SentimentPrediction, checkApiHealth } from '@/lib/api'
+import BackgroundParticles from '../components/BackgroundParticles'
+import AnimatedHeader from '../components/AnimatedHeader'
+import SentimentForm from '../components/SentimentForm'
+import SentimentResult from '../components/SentimentResult'
+import { Button } from '../components/ui/button'
+import { type SentimentPrediction, checkApiHealth } from '../lib/api'
 import { useEffect } from 'react'
 
 export default function HomePage() {
