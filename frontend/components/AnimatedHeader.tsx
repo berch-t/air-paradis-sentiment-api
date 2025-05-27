@@ -15,20 +15,28 @@ export default function AnimatedHeader() {
       <motion.div
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
-        transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
-        className="flex justify-center mb-6"
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        className="flex justify-center mb-8"
       >
         <div className="relative">
-          <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center glow-violet">
-            <Bot className="w-10 h-10 text-white" />
-          </div>
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center"
-          >
-            <Sparkles className="w-4 h-4 text-yellow-900" />
-          </motion.div>
+          <motion.img
+            src="/logo.png"
+            alt="Air Paradis Sentiment AI"
+            width={120}
+            height={120}
+            animate={{ 
+              y: [0, -10, 0],
+              rotate: [0, 2, -2, 0]
+            }}
+            transition={{ 
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="drop-shadow-2xl"
+          />
+          {/* Effet de lueur autour du logo */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-xl -z-10 animate-pulse" />
         </div>
       </motion.div>
 

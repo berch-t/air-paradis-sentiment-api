@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { RefreshCw, Wifi, WifiOff, Activity } from 'lucide-react'
+import { RefreshCw, Wifi, WifiOff, Activity, Github } from 'lucide-react'
 import BackgroundParticles from '../components/BackgroundParticles'
 import AnimatedHeader from '../components/AnimatedHeader'
 import SentimentForm from '../components/SentimentForm'
@@ -163,6 +163,46 @@ export default function HomePage() {
               <span>Next.js</span>
               <span>•</span>
               <span>MLflow</span>
+            </div>
+          </div>
+          
+          {/* GitHub + Copyright */}
+          <div className="mt-6 pt-4 border-t border-gray-900 space-y-4">
+            {/* Lien GitHub */}
+            <div className="flex justify-center">
+              <a
+                href="https://github.com/berch-t/air-paradis-sentiment-api"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 px-4 py-2 rounded-full glassmorphism backdrop-blur-md text-gray-300 hover:text-white transition-all duration-300 group hover:bg-gray-800/30"
+              >
+                <Github className="w-4 h-4" />
+                <span className="text-sm font-mono">&lt;&gt; code</span>
+              </a>
+            </div>
+            
+            {/* Copyright */}
+            <div className="text-xs text-gray-500 space-y-1">
+              <p>
+                © 2024 Thomas Berchet. Licensed under the{' '}
+                <a 
+                  href="https://opensource.org/licenses/MIT" 
+                  className="text-blue-400 hover:text-blue-300 underline" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  MIT License
+                </a>
+                .
+              </p>
+              <p>
+                <a 
+                  href="mailto:berchet.thomas@gmail.com" 
+                  className="text-blue-400 hover:text-blue-300 underline"
+                >
+                  Contact the author
+                </a>
+              </p>
             </div>
           </div>
         </motion.footer>
