@@ -557,7 +557,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Monitoring Google Cloud (fonctions inchangées)
+# Monitoring Google Cloud
 async def send_error_to_monitoring(error_message: str, text: str):
     """Envoie une erreur au monitoring Google Cloud"""
     try:
@@ -716,31 +716,31 @@ async def receive_frontend_logs(
     try:
         current_time = datetime.utcnow()
         
-        # Création de l'entrée de log
-        log_entry = {
+        # ✅ CORRECTION: Création de l'entrée de log SANS conflit 'message'
+        log_extra = {
             "timestamp": log_request.timestamp or int(current_time.timestamp() * 1000),
             "level": log_request.level.upper(),
-            "message": log_request.message,
-            "data": log_request.data or {},
+            "frontend_data": log_request.data or {},  # ✅ Renommé pour éviter conflit
             "projectId": log_request.projectId or PROJECT_ID,
             "logName": log_request.logName or "air-paradis-frontend",
             "source": "frontend-via-backend"
         }
         
-        # Log local
+        # Log local - Le message est passé directement, pas dans extra
         log_level = log_request.level.lower()
         log_message = f"[FRONTEND] {log_request.message}"
         
+        # ✅ CORRECTION: Utilisation de log_extra au lieu de log_entry
         if log_level == 'debug':
-            logger.debug(log_message, extra=log_entry)
+            logger.debug(log_message, extra=log_extra)
         elif log_level == 'info':
-            logger.info(log_message, extra=log_entry)
+            logger.info(log_message, extra=log_extra)
         elif log_level == 'warning':
-            logger.warning(log_message, extra=log_entry)
+            logger.warning(log_message, extra=log_extra)
         elif log_level in ['error', 'critical']:
-            logger.error(log_message, extra=log_entry)
+            logger.error(log_message, extra=log_extra)
         else:
-            logger.info(log_message, extra=log_entry)
+            logger.info(log_message, extra=log_extra)
         
         # Gestion spéciale des prédictions incorrectes
         if (log_request.level.upper() == 'WARNING' and 
@@ -785,9 +785,9 @@ async def receive_frontend_logs(
             alertThreshold=3,
             metadata={
                 "timestamp": current_time.isoformat(),
-                "projectId": log_entry["projectId"],
-                "logName": log_entry["logName"],
-                "level": log_entry["level"]
+                "projectId": log_request.projectId or PROJECT_ID,
+                "logName": log_request.logName or "air-paradis-frontend",
+                "level": log_request.level.upper()
             }
         )
         
