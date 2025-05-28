@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { predictSentiment, type SentimentPrediction } from '@/lib/api'
 import { cn, getSentimentEmoji, getConfidenceColor } from '@/lib/utils'
+import logger  from '@/lib/logger'
 
 interface SentimentFormProps {
   onPrediction: (prediction: SentimentPrediction) => void
@@ -25,15 +26,17 @@ export default function SentimentForm({ onPrediction }: SentimentFormProps) {
       setError('Veuillez saisir un tweet à analyser')
       return
     }
-
+  
     if (text.length > 500) {
       setError('Le texte ne peut pas dépasser 500 caractères')
       return
     }
-
+  
     setLoading(true)
     setError('')
-
+  
+    const startTime = performance.now()
+  
     try {
       const result = await predictSentiment(text.trim())
       const endTime = performance.now()
@@ -42,7 +45,7 @@ export default function SentimentForm({ onPrediction }: SentimentFormProps) {
       // Log des métriques de performance
       logger.logPerformanceMetrics({
         responseTime,
-        predictionTime: responseTime // temps total incluant réseau + prédiction
+        predictionTime: responseTime
       })
       
       if (result.success && result.data) {
@@ -52,12 +55,15 @@ export default function SentimentForm({ onPrediction }: SentimentFormProps) {
           predicted_sentiment: result.data.sentiment,
           confidence: result.data.confidence,
           request_id: result.data.request_id,
-          response_time_ms: responseTime,
-          model: result.data.model
+          performance_metrics: {
+            responseTime: responseTime
+          },
+          context: {
+            model: result.data.model
+          }
         })
         
         onPrediction(result.data)
-        // Ne pas vider le texte pour permettre le feedback
       } else {
         const errorMsg = result.error || 'Erreur lors de l\'analyse du sentiment'
         setError(errorMsg)
@@ -66,8 +72,12 @@ export default function SentimentForm({ onPrediction }: SentimentFormProps) {
         logger.error('Erreur de prédiction', {
           error: errorMsg,
           text: text.trim(),
-          response_time_ms: responseTime,
-          api_response: result
+          performance_metrics: {
+            responseTime: responseTime
+          },
+          context: {
+            api_response: result
+          }
         })
       }
     } catch (err) {
@@ -80,7 +90,9 @@ export default function SentimentForm({ onPrediction }: SentimentFormProps) {
       // Log de l'erreur critique
       logger.logApiError('predict-sentiment', err as Error, {
         text: text.trim(),
-        response_time_ms: responseTime,
+        performance_metrics: {
+          responseTime: responseTime
+        },
         error_type: 'connection_error'
       })
     } finally {
