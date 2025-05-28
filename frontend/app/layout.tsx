@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: 'Air Paradis Sentiment Analysis',
   description: 'Analysez le sentiment de vos tweets avec notre IA avancée',
   keywords: ['sentiment analysis', 'AI', 'machine learning', 'tweets', 'Air Paradis'],
-  authors: [{ name: 'Air Paradis Team' }],
+  authors: [{ name: 'Thomas Berchet' }],
   viewport: 'width=device-width, initial-scale=1',
 }
 

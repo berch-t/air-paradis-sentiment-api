@@ -9,6 +9,7 @@ import SentimentForm from '../components/SentimentForm'
 import SentimentResult from '../components/SentimentResult'
 import { Button } from '../components/ui/button'
 import { type SentimentPrediction, checkApiHealth } from '../lib/api'
+import logger from '../lib/logger'
 import { useEffect } from 'react'
 
 export default function HomePage() {
@@ -23,9 +24,29 @@ export default function HomePage() {
 
   // Vérification du statut de l'API au démarrage
   useEffect(() => {
+    // Log du démarrage de l'application
+    logger.logAppStart()
+    
     const checkStatus = async () => {
-      const result = await checkApiHealth()
-      setApiStatus(result.success ? 'online' : 'offline')
+      try {
+        const result = await checkApiHealth()
+        const newStatus = result.success ? 'online' : 'offline'
+        
+        if (newStatus !== apiStatus) {
+          logger.info(`Statut API changé: ${newStatus}`, {
+            context: {
+              previousStatus: apiStatus,
+              newStatus,
+              apiResponse: result
+            }
+          })
+        }
+        
+        setApiStatus(newStatus)
+      } catch (error) {
+        logger.logApiError('health-check', error as Error)
+        setApiStatus('offline')
+      }
     }
     
     checkStatus()
@@ -38,16 +59,37 @@ export default function HomePage() {
   const handleNewPrediction = (newPrediction: SentimentPrediction) => {
     setPrediction(newPrediction)
     
+    // Log de la nouvelle prédiction
+    logger.info('Nouvelle prédiction générée', {
+      text: newPrediction.text,
+      predicted_sentiment: newPrediction.sentiment,
+      confidence: newPrediction.confidence,
+      request_id: newPrediction.request_id
+    })
+    
     // Mettre à jour les statistiques
-    setStats(prev => ({
-      totalPredictions: prev.totalPredictions + 1,
-      averageConfidence: (prev.averageConfidence * prev.totalPredictions + newPrediction.confidence) / (prev.totalPredictions + 1),
-      positiveCount: prev.positiveCount + (newPrediction.sentiment === 'positive' ? 1 : 0),
-      negativeCount: prev.negativeCount + (newPrediction.sentiment === 'negative' ? 1 : 0)
-    }))
+    setStats(prev => {
+      const newStats = {
+        totalPredictions: prev.totalPredictions + 1,
+        averageConfidence: (prev.averageConfidence * prev.totalPredictions + newPrediction.confidence) / (prev.totalPredictions + 1),
+        positiveCount: prev.positiveCount + (newPrediction.sentiment === 'positive' ? 1 : 0),
+        negativeCount: prev.negativeCount + (newPrediction.sentiment === 'negative' ? 1 : 0)
+      }
+      
+      // Log des statistiques mises à jour
+      logger.debug('Statistiques mises à jour', {
+        context: {
+          previousStats: prev,
+          newStats
+        }
+      })
+      
+      return newStats
+    })
   }
 
   const handleReset = () => {
+    logger.logUserAction('reset-analysis')
     setPrediction(null)
   }
 
@@ -150,10 +192,10 @@ export default function HomePage() {
         >
           <div className="space-y-2">
             <p className="text-gray-400 text-sm">
-              Propulsé par une IA avancée BiLSTM + Word2Vec
+              Propulsé par un modèle IA avancée BiLSTM + Word2Vec
             </p>
             <p className="text-gray-500 text-xs">
-              Modèle déployé sur Google Cloud Run • Précision: 87% • MLOps Pipeline
+              Modèle déployé sur Google Cloud Run • Précision: 80% • MLOps Pipeline 
             </p>
             <div className="flex justify-center space-x-4 text-xs text-gray-600 mt-4">
               <span>TensorFlow 2.16</span>

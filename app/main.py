@@ -524,6 +524,22 @@ class HealthResponse(BaseModel):
     timestamp: str
     version: str = "1.0.0"
 
+class LogRequest(BaseModel):
+    level: str = Field(..., description="Niveau de log (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
+    message: str = Field(..., description="Message de log")
+    data: Optional[Dict] = Field(None, description="Données additionnelles")
+    timestamp: Optional[int] = Field(None, description="Timestamp Unix")
+    projectId: Optional[str] = Field(None, description="ID du projet Google Cloud")
+    logName: Optional[str] = Field(None, description="Nom du log")
+
+class LogResponse(BaseModel):
+    success: bool
+    message: str
+    logId: str
+    recentErrorCount: int
+    alertThreshold: int
+    metadata: Dict
+
 # Initialisation FastAPI
 app = FastAPI(
     title="Air Paradis Sentiment Analysis API",
@@ -690,6 +706,99 @@ async def get_metrics():
         "mlflow_available": MLFLOW_AVAILABLE,
         "timestamp": datetime.utcnow().isoformat()
     }
+
+@app.post("/api/logging", response_model=LogResponse)
+async def receive_frontend_logs(
+    log_request: LogRequest,
+    background_tasks: BackgroundTasks
+):
+    """Endpoint pour recevoir les logs du frontend et les traiter"""
+    try:
+        current_time = datetime.utcnow()
+        
+        # Création de l'entrée de log
+        log_entry = {
+            "timestamp": log_request.timestamp or int(current_time.timestamp() * 1000),
+            "level": log_request.level.upper(),
+            "message": log_request.message,
+            "data": log_request.data or {},
+            "projectId": log_request.projectId or PROJECT_ID,
+            "logName": log_request.logName or "air-paradis-frontend",
+            "source": "frontend-via-backend"
+        }
+        
+        # Log local
+        log_level = log_request.level.lower()
+        log_message = f"[FRONTEND] {log_request.message}"
+        
+        if log_level == 'debug':
+            logger.debug(log_message, extra=log_entry)
+        elif log_level == 'info':
+            logger.info(log_message, extra=log_entry)
+        elif log_level == 'warning':
+            logger.warning(log_message, extra=log_entry)
+        elif log_level in ['error', 'critical']:
+            logger.error(log_message, extra=log_entry)
+        else:
+            logger.info(log_message, extra=log_entry)
+        
+        # Gestion spéciale des prédictions incorrectes
+        if (log_request.level.upper() == 'WARNING' and 
+            log_request.data and 
+            log_request.data.get('event_type') == 'incorrect_prediction'):
+            
+            error_msg = f"Prédiction incorrecte frontend: prédit '{log_request.data.get('predicted_sentiment')}', réel '{log_request.data.get('actual_sentiment')}'"
+            background_tasks.add_task(
+                send_error_to_monitoring, 
+                error_msg, 
+                log_request.data.get('text', '')
+            )
+            
+            logger.warning(f"🔥 Prédiction incorrecte depuis frontend: {log_request.data}")
+        
+        # Gestion des erreurs critiques du frontend
+        if log_request.level.upper() in ['ERROR', 'CRITICAL']:
+            error_msg = f"Erreur frontend: {log_request.message}"
+            background_tasks.add_task(
+                send_error_to_monitoring,
+                error_msg,
+                str(log_request.data)
+            )
+        
+        # Envoi vers Google Cloud Logging (si configuré)
+        if os.getenv('GOOGLE_CLOUD_LOGGING_ENABLED', '').lower() == 'true':
+            try:
+                # Ici vous pourriez ajouter l'intégration Google Cloud Logging
+                # avec les SDK officiels
+                pass
+            except Exception as gcp_error:
+                logger.warning(f"⚠️ Erreur Google Cloud Logging: {gcp_error}")
+        
+        # Génération de l'ID de log
+        log_id = f"frontend_log_{int(current_time.timestamp() * 1000)}"
+        
+        return LogResponse(
+            success=True,
+            message="Log reçu et traité avec succès",
+            logId=log_id,
+            recentErrorCount=len(last_errors),
+            alertThreshold=3,
+            metadata={
+                "timestamp": current_time.isoformat(),
+                "projectId": log_entry["projectId"],
+                "logName": log_entry["logName"],
+                "level": log_entry["level"]
+            }
+        )
+        
+    except Exception as e:
+        error_msg = f"Erreur lors du traitement du log frontend: {str(e)}"
+        logger.error(error_msg)
+        
+        raise HTTPException(
+            status_code=500, 
+            detail="Erreur lors du traitement du log"
+        )
 
 if __name__ == "__main__":
     import uvicorn

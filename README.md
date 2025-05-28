@@ -11,7 +11,7 @@ Cette API constitue le livrable principal du **Projet 7 : "Réaliser une analyse
 - Implémenter une démarche MLOps complète (expérimentation, déploiement, monitoring)
 - Déployer un modèle en production sur le Cloud avec pipeline CI/CD
 
-## Table des matières 📋
+## 📋 Table des matières 
 
 - [Architecture](#🏗️-architecture)
 - [Prérequis](#📦-prérequis)
@@ -27,27 +27,33 @@ Cette API constitue le livrable principal du **Projet 7 : "Réaliser une analyse
 
 ```
 google_air-paradis-api/
+├── .github/workflows/
+│   ├── ci-cd.yml               # Pipeline API
+│   └── deploy-frontend.yml     # Pipeline Frontend
 ├── app/
+│   ├── __init__.py
 │   └── main.py                 # API FastAPI principale
 ├── config/
 │   ├── __init__.py
 │   └── settings.py             # Configuration de l'application
 ├── frontend/                   # Interface Next.js
 │   ├── app/
-│   │   ├── page.tsx           # Page principale
-│   │   ├── layout.tsx         # Layout global
-│   │   ├── globals.css        # Styles avec animations
-│   │   └── api/logging/       # API route pour Google Cloud Logging
+│   │   ├── page.tsx            # Page principale
+│   │   ├── layout.tsx          # Layout global
+│   │   ├── globals.css         # Styles avec animations
+│   │   └── api/logging/        # API route pour Google Cloud Logging
 │   ├── components/
-│   │   ├── AnimatedHeader.tsx # En-tête avec logo animé
-│   │   ├── SentimentForm.tsx  # Formulaire d'analyse
+│   │   ├── AnimatedHeader.tsx  # En-tête avec logo animé
+│   │   ├── SentimentForm.tsx   # Formulaire d'analyse
 │   │   ├── SentimentResult.tsx # Affichage des résultats
-│   │   └── ui/               # Composants UI réutilisables
+│   │   └── ui/                 # Composants UI réutilisables
 │   ├── lib/
-│   │   ├── api.ts            # Fonctions d'API et monitoring
-│   │   └── utils.ts          # Utilitaires
-│   ├── Dockerfile            # Image Docker pour le frontend
-│   └── README.md             # Documentation frontend
+│   │   ├── api.ts              # Fonctions d'API et monitoring
+│   │   └── utils.ts            # Utilitaires
+│   │── public/
+│   │   └── logo.png            # Logo de l'API
+│   ├── Dockerfile              # Image Docker pour le frontend
+│   └── README.md               # Documentation frontend
 ├── models/
 │   ├── best_advanced_model_BiLSTM_Word2Vec.h5    # Modèle TensorFlow
 │   ├── best_advanced_model_tokenizer.pickle      # Tokenizer
@@ -58,13 +64,12 @@ google_air-paradis-api/
 ├── tests/
 │   ├── __init__.py
 │   └── test_api.py             # Tests unitaires
-├── .github/workflows/
-│   ├── ci-cd.yml               # Pipeline API
-│   └── deploy-frontend.yml    # Pipeline Frontend
 ├── requirements.txt            # Dépendances Python
+├── requirements-windows.txt    # Dépendances Python pour Windows
 ├── Dockerfile                  # Image Docker API
-├── .dockerignore              # Exclusions Docker
-└── README.md                  # Cette documentation
+├── Dockerfile.frontend         # Image Docker Frontend
+├── .dockerignore               # Exclusions Docker
+└── README.md                   # Cette documentation
 ```
 
 ## 📦 Prérequis

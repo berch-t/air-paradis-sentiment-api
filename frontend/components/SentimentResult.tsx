@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle, XCircle, TrendingUp, Clock, Brain, Zap, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { type SentimentPrediction, submitFeedback, logCorrectPrediction, logIncorrectPrediction } from '@/lib/api'
+import { type SentimentPrediction, submitFeedback } from '@/lib/api'
 import { cn, formatTimestamp, getConfidenceColor, getSentimentEmoji } from '@/lib/utils'
+import logger from '@/lib/logger'
 
 interface SentimentResultProps {
   prediction: SentimentPrediction
@@ -18,38 +19,80 @@ export default function SentimentResult({ prediction }: SentimentResultProps) {
   const [showSuccess, setShowSuccess] = useState(false)
 
   const handleFeedback = async (isCorrect: boolean) => {
-    setFeedbackLoading(isCorrect ? 'correct' : 'incorrect')
+    const feedbackType = isCorrect ? 'correct' : 'incorrect'
+    setFeedbackLoading(feedbackType)
     
     try {
       // Soumettre le feedback à l'API
+      const actualSentiment = isCorrect ? prediction.sentiment : (prediction.sentiment === 'positive' ? 'negative' : 'positive')
       const feedbackData = {
         text: prediction.text,
         predicted_sentiment: prediction.sentiment,
-        actual_sentiment: isCorrect ? prediction.sentiment : (prediction.sentiment === 'positive' ? 'negative' : 'positive'),
+        actual_sentiment: actualSentiment,
         is_correct: isCorrect,
         user_id: 'frontend_user'
       }
+
+      // Log de l'action utilisateur
+      logger.logUserAction(`feedback-${feedbackType}`, {
+        text: prediction.text,
+        predicted_sentiment: prediction.sentiment,
+        actual_sentiment: actualSentiment,
+        confidence: prediction.confidence,
+        request_id: prediction.request_id
+      })
 
       const result = await submitFeedback(feedbackData)
       
       if (result.success) {
         // Log vers Google Cloud pour monitoring
         if (isCorrect) {
-          await logCorrectPrediction(prediction.text, prediction.sentiment, prediction.confidence)
+          logger.logCorrectPrediction(
+            prediction.text, 
+            prediction.sentiment, 
+            prediction.confidence,
+            prediction.request_id,
+            'frontend_user'
+          )
           setShowSuccess(true)
           setTimeout(() => setShowSuccess(false), 3000)
         } else {
-          await logIncorrectPrediction(
+          // ALERTE : Prédiction incorrecte - déclenche le monitoring
+          logger.logIncorrectPrediction(
             prediction.text, 
             prediction.sentiment, 
-            feedbackData.actual_sentiment, 
-            prediction.confidence
+            actualSentiment, 
+            prediction.confidence,
+            prediction.request_id,
+            'frontend_user'
           )
         }
         
         setFeedbackGiven(true)
+        
+        logger.info('Feedback soumis avec succès', {
+          event_type: 'feedback_submitted',
+          is_correct: isCorrect,
+          predicted_sentiment: prediction.sentiment,
+          actual_sentiment: actualSentiment,
+          confidence: prediction.confidence,
+          request_id: prediction.request_id
+        })
+      } else {
+        throw new Error('Erreur lors de la soumission du feedback')
       }
     } catch (error) {
+      logger.logUIError('SentimentResult', error as Error, {
+        action: 'feedback_submission',
+        feedbackType,
+        prediction: {
+          text: prediction.text,
+          sentiment: prediction.sentiment,
+          confidence: prediction.confidence,
+          request_id: prediction.request_id
+        }
+      })
+      
       console.error('Erreur lors de l\'envoi du feedback:', error)
     } finally {
       setFeedbackLoading(null)

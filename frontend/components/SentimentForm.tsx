@@ -36,15 +36,53 @@ export default function SentimentForm({ onPrediction }: SentimentFormProps) {
 
     try {
       const result = await predictSentiment(text.trim())
+      const endTime = performance.now()
+      const responseTime = endTime - startTime
+      
+      // Log des métriques de performance
+      logger.logPerformanceMetrics({
+        responseTime,
+        predictionTime: responseTime // temps total incluant réseau + prédiction
+      })
       
       if (result.success && result.data) {
+        // Log de succès
+        logger.info('Prédiction réussie', {
+          text: text.trim(),
+          predicted_sentiment: result.data.sentiment,
+          confidence: result.data.confidence,
+          request_id: result.data.request_id,
+          response_time_ms: responseTime,
+          model: result.data.model
+        })
+        
         onPrediction(result.data)
         // Ne pas vider le texte pour permettre le feedback
       } else {
-        setError(result.error || 'Erreur lors de l\'analyse du sentiment')
+        const errorMsg = result.error || 'Erreur lors de l\'analyse du sentiment'
+        setError(errorMsg)
+        
+        // Log de l'erreur API
+        logger.error('Erreur de prédiction', {
+          error: errorMsg,
+          text: text.trim(),
+          response_time_ms: responseTime,
+          api_response: result
+        })
       }
     } catch (err) {
-      setError('Erreur de connexion à l\'API')
+      const endTime = performance.now()
+      const responseTime = endTime - startTime
+      
+      const errorMsg = 'Erreur de connexion à l\'API'
+      setError(errorMsg)
+      
+      // Log de l'erreur critique
+      logger.logApiError('predict-sentiment', err as Error, {
+        text: text.trim(),
+        response_time_ms: responseTime,
+        error_type: 'connection_error'
+      })
     } finally {
       setLoading(false)
     }
@@ -53,12 +91,20 @@ export default function SentimentForm({ onPrediction }: SentimentFormProps) {
   const exampleTweets = [
     "I absolutely love Air Paradis! Amazing crew and comfortable seats! 😊",
     "Terrible experience with Air Paradis, worst airline ever! Very disappointed.",
-    "Flight was okay, nothing special but arrived on time.",
+    "Flight was okay, nothing special but arrived on time. 🥱",
     "Outstanding customer service team, they helped me with everything!",
+    "I hated this flight, the crew was rude and the food was terrible.",
+    "Everything went wrong, the weather was bad and the plane even crashed at some point... 😒",
   ]
 
   const handleExampleClick = (example: string) => {
     setText(example)
+    
+    // Log de l'utilisation d'un exemple
+    logger.logUserAction('example-selected', {
+      example_text: example,
+      example_length: example.length
+    })
   }
 
   return (

@@ -9,7 +9,7 @@ Modules:
 """
 
 __version__ = "1.0.0"
-__author__ = "Air Paradis ML Team"
+__author__ = "Thomas Berchet"
 __description__ = "API d'analyse de sentiment pour les tweets - Modèle BiLSTM avec Word2Vec"
 
 # Import des composants principaux
