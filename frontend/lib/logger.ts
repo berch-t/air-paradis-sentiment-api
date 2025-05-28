@@ -14,6 +14,7 @@ interface LogData {
   error?: string;
   stack?: string;
   context?: any;
+  is_correct?: boolean;
   performance_metrics?: {
     responseTime?: number;
     modelLoadTime?: number;
@@ -21,10 +22,9 @@ interface LogData {
   };
 
     // --- AJOUTS POUR LE TEST DE STRESS ET AUTRES LOGS SIMILAIRES ---
-    stress_test?: boolean;   // La propriété qui causait l'erreur initiale
-    iteration?: number;      // Pour savoir quelle itération du test
-    timestamp?: number;      // Le timestamp spécifique du log (Date.now())
-    // -------------------------------------------------------------
+    stress_test?: boolean;
+    iteration?: number;
+    timestamp?: number;
 }
 
 interface LogEntry {
