@@ -232,6 +232,8 @@ secrets/
 # Local development
 .local/
 local/
+frontend/.env.local.
+frontend/.env.production
 
 # Local secrets (Google Cloud credentials)
 .local_secrets/
