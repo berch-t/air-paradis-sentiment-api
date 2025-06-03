@@ -56,7 +56,7 @@ else:
         MLFLOW_AVAILABLE = False
 
 # Configuration Google Cloud
-PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "air-paradis-sentiment")
+PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "air-paradis-sentiment-api")
 REGION = os.getenv("GOOGLE_CLOUD_REGION", "europe-west1")
 
 # Variables globales pour le modèle
