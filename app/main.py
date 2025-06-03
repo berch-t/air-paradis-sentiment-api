@@ -712,25 +712,25 @@ async def receive_frontend_logs(
     log_request: LogRequest,
     background_tasks: BackgroundTasks
 ):
-    """Endpoint pour recevoir les logs du frontend et les traiter"""
+    """Endpoint pour recevoir les logs du frontend et les traiter avec Google Cloud Logging"""
     try:
         current_time = datetime.utcnow()
         
-        # ✅ CORRECTION: Création de l'entrée de log SANS conflit 'message'
+        # Création de l'entrée de log
         log_extra = {
             "timestamp": log_request.timestamp or int(current_time.timestamp() * 1000),
-            "level": log_request.level.upper(),
-            "frontend_data": log_request.data or {},  # ✅ Renommé pour éviter conflit
+            "log_level": log_request.level.upper(),
+            "frontend_data": log_request.data or {},
             "projectId": log_request.projectId or PROJECT_ID,
             "logName": log_request.logName or "air-paradis-frontend",
             "source": "frontend-via-backend"
         }
         
-        # Log local - Le message est passé directement, pas dans extra
+        # Message de log avec préfixe frontend
         log_level = log_request.level.lower()
         log_message = f"[FRONTEND] {log_request.message}"
         
-        # ✅ CORRECTION: Utilisation de log_extra au lieu de log_entry
+        # Log local avec extra
         if log_level == 'debug':
             logger.debug(log_message, extra=log_extra)
         elif log_level == 'info':
@@ -742,12 +742,51 @@ async def receive_frontend_logs(
         else:
             logger.info(log_message, extra=log_extra)
         
-        # Gestion spéciale des prédictions incorrectes
+        # Intégration Google Cloud Logging directe
+        if os.getenv('GOOGLE_CLOUD_LOGGING_ENABLED', '').lower() == 'true':
+            try:
+                from google.cloud import logging as gcp_logging
+                
+                # Client Google Cloud Logging
+                gcp_client = gcp_logging.Client(project=PROJECT_ID)
+                gcp_logger = gcp_client.logger(log_request.logName or "air-paradis-frontend")
+                
+                # Structure du log pour Google Cloud
+                gcp_log_entry = {
+                    "message": f"[FRONTEND] {log_request.message}",
+                    "severity": log_request.level.upper(),
+                    "timestamp": current_time.isoformat(),
+                    "data": log_request.data or {},
+                    "source": "frontend-next-js",
+                    "service": "air-paradis-frontend",
+                    "version": "1.0.0"
+                }
+                
+                # Envoi vers Google Cloud Logging avec le bon niveau
+                if log_level == 'debug':
+                    gcp_logger.log_struct(gcp_log_entry, severity='DEBUG')
+                elif log_level == 'info':
+                    gcp_logger.log_struct(gcp_log_entry, severity='INFO')
+                elif log_level == 'warning':
+                    gcp_logger.log_struct(gcp_log_entry, severity='WARNING')
+                elif log_level == 'error':
+                    gcp_logger.log_struct(gcp_log_entry, severity='ERROR')
+                elif log_level == 'critical':
+                    gcp_logger.log_struct(gcp_log_entry, severity='CRITICAL')
+                else:
+                    gcp_logger.log_struct(gcp_log_entry, severity='INFO')
+                    
+            except Exception as gcp_error:
+                logger.warning(f"⚠️ Erreur Google Cloud Logging: {gcp_error}")
+        
+        # Gestion spéciale des prédictions incorrectes (pour alertes)
         if (log_request.level.upper() == 'WARNING' and 
             log_request.data and 
             log_request.data.get('event_type') == 'incorrect_prediction'):
             
             error_msg = f"Prédiction incorrecte frontend: prédit '{log_request.data.get('predicted_sentiment')}', réel '{log_request.data.get('actual_sentiment')}'"
+            
+            # Envoi au système de monitoring pour déclencher les alertes
             background_tasks.add_task(
                 send_error_to_monitoring, 
                 error_msg, 
@@ -755,6 +794,29 @@ async def receive_frontend_logs(
             )
             
             logger.warning(f"🔥 Prédiction incorrecte depuis frontend: {log_request.data}")
+            
+            # Log spécial Google Cloud pour les alertes
+            if os.getenv('GOOGLE_CLOUD_LOGGING_ENABLED', '').lower() == 'true':
+                try:
+                    from google.cloud import logging as gcp_logging
+                    gcp_client = gcp_logging.Client(project=PROJECT_ID)
+                    alert_logger = gcp_client.logger("air-paradis-alerts")
+                    
+                    alert_entry = {
+                        "message": f"🚨 ALERTE: Prédiction incorrecte détectée",
+                        "alert_type": "incorrect_prediction",
+                        "text": log_request.data.get('text', ''),
+                        "predicted_sentiment": log_request.data.get('predicted_sentiment'),
+                        "actual_sentiment": log_request.data.get('actual_sentiment'),
+                        "confidence": log_request.data.get('confidence'),
+                        "user_id": log_request.data.get('user_id'),
+                        "timestamp": current_time.isoformat(),
+                        "service": "air-paradis-sentiment-api"
+                    }
+                    
+                    alert_logger.log_struct(alert_entry, severity='WARNING')
+                except Exception as alert_error:
+                    logger.error(f"❌ Erreur envoi alerte Google Cloud: {alert_error}")
         
         # Gestion des erreurs critiques du frontend
         if log_request.level.upper() in ['ERROR', 'CRITICAL']:
@@ -764,19 +826,32 @@ async def receive_frontend_logs(
                 error_msg,
                 str(log_request.data)
             )
+            
+            # Log d'erreur critique pour Google Cloud
+            if os.getenv('GOOGLE_CLOUD_LOGGING_ENABLED', '').lower() == 'true':
+                try:
+                    from google.cloud import logging as gcp_logging
+                    gcp_client = gcp_logging.Client(project=PROJECT_ID)
+                    error_logger = gcp_client.logger("air-paradis-errors")
+                    
+                    error_entry = {
+                        "message": f"🚨 ERREUR CRITIQUE FRONTEND: {log_request.message}",
+                        "error_type": "frontend_critical_error",
+                        "error_data": log_request.data,
+                        "timestamp": current_time.isoformat(),
+                        "service": "air-paradis-frontend",
+                        "user_agent": log_request.data.get('userAgent') if log_request.data else None,
+                        "url": log_request.data.get('url') if log_request.data else None
+                    }
+                    
+                    error_logger.log_struct(error_entry, severity='ERROR')
+                except Exception as error_log_err:
+                    logger.error(f"❌ Erreur log erreur critique: {error_log_err}")
         
-        # Envoi vers Google Cloud Logging (si configuré)
-        if os.getenv('GOOGLE_CLOUD_LOGGING_ENABLED', '').lower() == 'true':
-            try:
-                # Ici vous pourriez ajouter l'intégration Google Cloud Logging
-                # avec les SDK officiels
-                pass
-            except Exception as gcp_error:
-                logger.warning(f"⚠️ Erreur Google Cloud Logging: {gcp_error}")
+        # Génération de l'ID de log unique
+        log_id = f"frontend_log_{int(current_time.timestamp() * 1000)}_{hash(log_request.message) % 10000}"
         
-        # Génération de l'ID de log
-        log_id = f"frontend_log_{int(current_time.timestamp() * 1000)}"
-        
+        # Réponse enrichie avec informations de monitoring
         return LogResponse(
             success=True,
             message="Log reçu et traité avec succès",
@@ -787,7 +862,10 @@ async def receive_frontend_logs(
                 "timestamp": current_time.isoformat(),
                 "projectId": log_request.projectId or PROJECT_ID,
                 "logName": log_request.logName or "air-paradis-frontend",
-                "level": log_request.level.upper()
+                "level": log_request.level.upper(),
+                "google_cloud_logging": os.getenv('GOOGLE_CLOUD_LOGGING_ENABLED', '').lower() == 'true',
+                "environment": os.getenv('ENVIRONMENT', 'development'),
+                "service_version": "1.0.0"
             }
         )
         
@@ -795,10 +873,34 @@ async def receive_frontend_logs(
         error_msg = f"Erreur lors du traitement du log frontend: {str(e)}"
         logger.error(error_msg)
         
+        # Log de l'erreur de l'endpoint lui-même
+        if os.getenv('GOOGLE_CLOUD_LOGGING_ENABLED', '').lower() == 'true':
+            try:
+                from google.cloud import logging as gcp_logging
+                gcp_client = gcp_logging.Client(project=PROJECT_ID)
+                endpoint_logger = gcp_client.logger("air-paradis-api-errors")
+                
+                endpoint_error = {
+                    "message": f"❌ Erreur endpoint /api/logging: {str(e)}",
+                    "error_type": "logging_endpoint_error",
+                    "endpoint": "/api/logging",
+                    "request_data": {
+                        "level": log_request.level if 'log_request' in locals() else 'unknown',
+                        "message": log_request.message if 'log_request' in locals() else 'unknown'
+                    },
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "service": "air-paradis-sentiment-api"
+                }
+                
+                endpoint_logger.log_struct(endpoint_error, severity='ERROR')
+            except Exception as endpoint_error:
+                logger.error(f"❌ Impossible de logger l'erreur endpoint: {endpoint_error}")
+        
         raise HTTPException(
             status_code=500, 
             detail="Erreur lors du traitement du log"
         )
+
 
 if __name__ == "__main__":
     import uvicorn
