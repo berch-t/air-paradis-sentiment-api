@@ -1,6 +1,6 @@
 /**
  * Utilitaire de logging pour Air Paradis Sentiment Analysis
- * Envoie les logs vers l'API backend et Google Cloud Logging
+ * Envoie les logs vers l'API backend via le proxy Next.js
  */
 
 interface LogData {
@@ -37,18 +37,16 @@ interface LogEntry {
 }
 
 class Logger {
-  private apiUrl: string;
   private projectId: string;
   private isEnabled: boolean;
 
   constructor() {
-    this.apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     this.projectId = process.env.NEXT_PUBLIC_GOOGLE_CLOUD_PROJECT || 'air-paradis-sentiment';
     this.isEnabled = process.env.NEXT_PUBLIC_MONITORING_ENABLED === 'true';
   }
 
   /**
-   * Envoie un log vers l'API backend
+   * Envoie un log vers l'API backend via le proxy Next.js
    */
   private async sendLog(entry: LogEntry): Promise<void> {
     if (!this.isEnabled) {
@@ -57,8 +55,9 @@ class Logger {
     }
 
     try {
-      // Envoyer vers l'API frontend (Next.js)
-      const frontendResponse = await fetch('/api/logging', {
+      // **ENVOI UNIQUEMENT VERS L'ENDPOINT NEXT.JS QUI REDIRIGE VERS LE BACKEND**
+      // Ceci évite la double redirection et centralise la logique dans route.ts
+      const response = await fetch('/api/logging', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,33 +69,25 @@ class Logger {
         }),
       });
 
-      if (!frontendResponse.ok) {
-        throw new Error(`Frontend logging failed: ${frontendResponse.status}`);
+      if (!response.ok) {
+        throw new Error(`Logging failed: ${response.status} - ${response.statusText}`);
       }
 
-      // Envoyer vers l'API backend (FastAPI) si disponible
-      if (this.apiUrl) {
-        try {
-          await fetch(`${this.apiUrl}/api/logging`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              ...entry,
-              projectId: this.projectId,
-              timestamp: entry.timestamp || Date.now(),
-            }),
-          });
-        } catch (backendError) {
-          console.warn('Backend logging failed:', backendError);
-          // Ne pas faire échouer si le backend n'est pas disponible
-        }
+      const result = await response.json();
+      
+      // Log de succès en mode développement
+      if (process.env.NODE_ENV === 'development') {
+        console.debug('[LOGGER SUCCESS]', {
+          logId: result.logId,
+          source: result.source,
+          recentErrorCount: result.recentErrorCount,
+          alertThreshold: result.alertThreshold
+        });
       }
 
     } catch (error) {
-      console.error('Logging failed:', error);
-      // Fallback vers console.log local
+      console.error('❌ Logging failed:', error);
+      // Fallback vers console.log local uniquement
       console.log('[FALLBACK LOG]', entry);
     }
   }

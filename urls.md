@@ -1,5 +1,8 @@
 ## 🔗 **Liens du projet Air Paradis Sentiment Analysis**
 
+- Les éléments sont déployés en "cold-start" : la première requête "réveille" l’API et nécessite de charger ou d’initialiser divers éléments (serveurs, caches, conteneurs, etc.), on pourra observer une latence d’environ 45 secondes. Une fois en mémoire et "réchauffée", l’API peut répondre presque instantanément aux requêtes suivantes !
+
+
 ### **🚀 APIs Déployées**
 - **API Backend (FastAPI)** : https://air-paradis-sentiment-api-qxumenjqxq-ew.a.run.app
 - **Frontend Interface** : https://air-paradis-frontend-qxumenjqxq-ew.a.run.app
